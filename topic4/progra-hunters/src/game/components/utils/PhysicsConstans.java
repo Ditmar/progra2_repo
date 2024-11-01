@@ -1,7 +1,7 @@
 package game.components.utils;
 
 public enum PhysicsConstans {
-    FRICTION(0.002),
+    FRICTION(0.01),
     GRAVITY(0.0);
 
     private Double value;

@@ -3,6 +3,7 @@ package game;
 import javax.swing.JFrame;
 
 import game.components.utils.GameConstans;
+import loaders.Assets;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -80,7 +81,9 @@ public class MainWindow extends JFrame implements Runnable {
     private void update() {
         game.update();
     }
-
+    private void loadAssets() {
+        Assets.init();
+    }
     @Override
     public void run() {
         long now = 0;
@@ -88,6 +91,7 @@ public class MainWindow extends JFrame implements Runnable {
         delta = 0;
         Integer frames = 0;
         long time = 0;
+        loadAssets();
         while (isRunning) {
             now = System.nanoTime();
             delta += (now - lastTime) / targetTime;

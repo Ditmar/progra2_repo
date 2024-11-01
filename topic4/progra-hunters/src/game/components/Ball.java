@@ -11,6 +11,7 @@ public class Ball implements BaseDrawer {
     private Double x, y;
     private Double speedX, speedY;
     private Double acelerationX, acelerationY;
+    private Integer boundX, boundY;
     private Integer WIDTH = GameConstans.WIDTH.getValue();
     private Integer HEIGHT = GameConstans.HEIGHT.getValue();
     private Double friction = PhysicsConstans.FRICTION.getValue();
@@ -21,17 +22,20 @@ public class Ball implements BaseDrawer {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.speedX = 10.0;
+        this.speedX = 0.0;
         this.speedY = 0.0;
         this.acelerationX = 0.0;
         this.acelerationY = PhysicsConstans.GRAVITY.getValue();
-
     }
-
+    public void setBounds(Integer boundX, Integer boundY, Integer boundWidth, Integer boundHeight) {
+        this.boundX = boundX;
+        this.boundY = boundY;
+        this.WIDTH = boundWidth;
+        this.HEIGHT = boundHeight;
+    }
     public Double getX() {
         return x;
     }
-
     public void setX(Double x) {
         this.x = x;
     }
@@ -71,6 +75,10 @@ public class Ball implements BaseDrawer {
     public Double getSpeedY() {
         return speedY;
     }
+    public Integer getDiameter() {
+        Integer diameter = (int)this.radius * 2;
+        return diameter;
+    }
 
     public void setSpeedY(Double speedY) {
         this.speedY = speedY;
@@ -82,20 +90,20 @@ public class Ball implements BaseDrawer {
         speedY += acelerationY - friction * speedY;
         x += speedX;
         y += speedY;
-        if (y + radius * 2 >= HEIGHT) {
-            y = (double) (HEIGHT - radius * 2);
+        if (y + radius * 2 >= HEIGHT + boundY) {
+            y = (double) (HEIGHT + boundY - radius * 2);
             speedY = -speedY;
         }
-        if (x + radius * 2 >= WIDTH) {
-            x = (double) (WIDTH - radius * 2);
+        if (x + radius * 2 >= WIDTH + boundX) {
+            x = (double) (WIDTH + boundX - radius * 2);
             speedX = -speedX;
         }
-        if (y <= 0) {
-            y = 0.0;
+        if (y <= boundY) {
+            y = boundY.doubleValue();
             speedY = -speedY;
         }
-        if (x <= 0) {
-            x = 0.0;
+        if (x <= boundX) {
+            x = boundX.doubleValue();
             speedX = -speedX;
         }
     }

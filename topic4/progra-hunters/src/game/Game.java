@@ -5,12 +5,13 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 
 import game.components.Ball;
+import game.components.Table;
 import game.components.base.BaseDrawer;
 import game.components.utils.GameConstans;
 
 public class Game implements BaseDrawer {
     ArrayList<Ball> balls = new ArrayList<Ball>();
-
+    Table table;
     public Game() {
         ArrayList<Color> colors = new ArrayList<Color>();
         colors.add(Color.RED);
@@ -19,16 +20,32 @@ public class Game implements BaseDrawer {
         colors.add(Color.YELLOW);
         colors.add(Color.ORANGE);
         colors.add(Color.PINK);
-        for (Integer i = 0; i < 10; i++) {
+        table = new Table();
+        Integer positionX = 400;
+        Integer positionY = 150;
+        for (Integer i = 0; i < 20; i++) {
             Ball ball = new Ball(0.0, 0.0, 10);
-            ball.setX(Math.random() * GameConstans.WIDTH.getValue());
-            ball.setY(Math.random() * GameConstans.HEIGHT.getValue());
-            ball.setSpeedX(Math.random() * 10);
-            ball.setSpeedY(Math.random() * 10);
-            ball.setRadius(20);
+            ball.setBounds(table.getBoundX(), table.getBoundY(), table.getBoundWidth(), table.getBoundHeight());
+            // ball.setX(Math.random() * table.getBoundWidth() + table.getBoundX());
+            // ball.setY(Math.random() * table.getBoundHeight() + table.getBoundY());
+            if (i % 5 != 0) {
+                positionX += ball.getDiameter() + 2;
+            } else {
+                positionX = 400;
+                positionY += ball.getDiameter() + 2;
+            }
+            ball.setX(positionX.doubleValue());
+            ball.setY(positionY.doubleValue());
+            ball.setSpeedX(0.0);
+            ball.setSpeedY(0.0);
+            ball.setRadius(12);
             ball.setColor(colors.get(i % colors.size()));
             balls.add(ball);
         }
+        Ball newBall = new Ball(40.0, 200.0, 12);
+        newBall.setSpeedX(9.0);
+        newBall.setBounds(table.getBoundX(), table.getBoundY(), table.getBoundWidth(), table.getBoundHeight());
+        balls.add(newBall);
     }
 
     @Override
@@ -44,6 +61,14 @@ public class Game implements BaseDrawer {
                 }
 
             }
+        }
+    }
+
+    @Override
+    public void draw(Graphics graphics) {
+        table.draw(graphics);
+        for (Ball ball : balls) {
+            ball.draw(graphics);
         }
     }
 
@@ -79,14 +104,11 @@ public class Game implements BaseDrawer {
         ball.setSpeedY((vn1y + vt1y));
         otherBall.setSpeedX((vn2x + vt2x));
         otherBall.setSpeedY((vn2y + vt2y));
+        Double overlap = 0.5 * (ball.getRadius() + otherBall.getRadius() - distance + 1);
+        ball.setX(ball.getX() - overlap * normalX);
+        ball.setY(ball.getY() - overlap * normalY);
     }
 
-    @Override
-    public void draw(Graphics graphics) {
-        for (Ball ball : balls) {
-            ball.draw(graphics);
 
-        }
-    }
 
 }
