@@ -1,18 +1,29 @@
 package game;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
 import java.util.ArrayList;
 
 import game.components.Ball;
 import game.components.Table;
 import game.components.base.BaseDrawer;
 import game.components.utils.GameConstans;
+import game.components.utils.InitGame;
 
 public class Game implements BaseDrawer {
     ArrayList<Ball> balls = new ArrayList<Ball>();
     Table table;
-    public Game() {
+    Double mouseX, mouseY;
+    Ball whiteBall;
+    Double difX, difY;
+    Double distance;
+    Canvas canvas;
+    public Game(Canvas canvas) {
+        this.canvas = canvas;
         ArrayList<Color> colors = new ArrayList<Color>();
         colors.add(Color.RED);
         colors.add(Color.BLUE);
@@ -21,35 +32,39 @@ public class Game implements BaseDrawer {
         colors.add(Color.ORANGE);
         colors.add(Color.PINK);
         table = new Table();
-        Integer positionX = 400;
-        Integer positionY = 150;
-        for (Integer i = 0; i < 20; i++) {
+        for (Integer i = 0; i < 15; i++) {
             Ball ball = new Ball(0.0, 0.0, 10);
             ball.setBounds(table.getBoundX(), table.getBoundY(), table.getBoundWidth(), table.getBoundHeight());
             // ball.setX(Math.random() * table.getBoundWidth() + table.getBoundX());
             // ball.setY(Math.random() * table.getBoundHeight() + table.getBoundY());
-            if (i % 5 != 0) {
-                positionX += ball.getDiameter() + 2;
-            } else {
-                positionX = 400;
-                positionY += ball.getDiameter() + 2;
-            }
-            ball.setX(positionX.doubleValue());
-            ball.setY(positionY.doubleValue());
             ball.setSpeedX(0.0);
             ball.setSpeedY(0.0);
             ball.setRadius(12);
             ball.setColor(colors.get(i % colors.size()));
             balls.add(ball);
         }
-        Ball newBall = new Ball(40.0, 200.0, 12);
-        newBall.setSpeedX(9.0);
-        newBall.setBounds(table.getBoundX(), table.getBoundY(), table.getBoundWidth(), table.getBoundHeight());
-        balls.add(newBall);
+        whiteBall = new Ball(
+            GameConstans.WHITE_BALL_INIT_POSITION_X.getValue().doubleValue(), 
+            GameConstans.WHITE_BALL_INIT_POSITION_Y.getValue().doubleValue(), 
+            12);
+        whiteBall.setSpeedX(7.0);
+        whiteBall.setColor(Color.WHITE);
+        whiteBall.setBounds(table.getBoundX(), table.getBoundY(), table.getBoundWidth(), table.getBoundHeight());
+        balls.add(whiteBall);
+        InitGame.orderPosition(balls, 
+        GameConstans.BALLS_INIT_POSITION_X.getValue(), 
+        GameConstans.BALLS_INIT_POSITION_Y.getValue());
     }
+
+
 
     @Override
     public void update() {
+        PointerInfo pointer = MouseInfo.getPointerInfo();
+        Point point = pointer.getLocation();
+        mouseX = point.getX();
+        mouseY = point.getY();
+        updateForceDirection();
         for (Ball ball : balls) {
             ball.update();
             for (Ball otherBall : balls) {
@@ -64,9 +79,18 @@ public class Game implements BaseDrawer {
         }
     }
 
+    private void updateForceDirection() {
+        difX = mouseX - whiteBall.getX();
+        difY = mouseY - whiteBall.getY();
+        distance = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2));
+    }
+
     @Override
     public void draw(Graphics graphics) {
         table.draw(graphics);
+        graphics.setColor(Color.RED);
+        graphics.drawLine(whiteBall.getX().intValue(), whiteBall.getY().intValue(), mouseX.intValue() - (int)this.canvas.getLocationOnScreen().getX(), mouseY.intValue() - (int)this.canvas.getLocationOnScreen().getY());
+        graphics.drawString("Mouse X = " + mouseX + " Mouse y = " + mouseY, 10, 10);
         for (Ball ball : balls) {
             ball.draw(graphics);
         }
@@ -108,7 +132,4 @@ public class Game implements BaseDrawer {
         ball.setX(ball.getX() - overlap * normalX);
         ball.setY(ball.getY() - overlap * normalY);
     }
-
-
-
 }

@@ -9,6 +9,9 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 
 public class MainWindow extends JFrame implements Runnable {
@@ -37,8 +40,9 @@ public class MainWindow extends JFrame implements Runnable {
         canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         canvas.setMaximumSize(new Dimension(WIDTH, HEIGHT));
         canvas.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        canvas.setLocation(new Point(0, 0));
         canvas.setFocusable(true);
-        game = new Game();
+        game = new Game(canvas);
         this.add(canvas);
         this.pack();
     }
@@ -112,4 +116,6 @@ public class MainWindow extends JFrame implements Runnable {
         }
         stop();
     }
+
+    
 }
