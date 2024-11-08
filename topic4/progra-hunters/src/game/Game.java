@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import game.components.Ball;
@@ -21,9 +23,19 @@ public class Game implements BaseDrawer {
     Ball whiteBall;
     Double difX, difY;
     Double distance;
-    Canvas canvas;
+    Mouse mouse;
+    MainWindow window;
+    Boolean fireClick = false;
     public Game(Canvas canvas) {
-        this.canvas = canvas;
+        mouse = new Mouse(canvas);
+        System.out.println("click event");
+        this.window = window;
+        canvas.addMouseListener(null);
+        canvas.addMouseListener(new MouseAdapter() {
+        	public void mouseClicked(MouseEvent me) {
+        		fireClick = true;
+            }
+        });
         ArrayList<Color> colors = new ArrayList<Color>();
         colors.add(Color.RED);
         colors.add(Color.BLUE);
@@ -60,11 +72,9 @@ public class Game implements BaseDrawer {
 
     @Override
     public void update() {
-        PointerInfo pointer = MouseInfo.getPointerInfo();
-        Point point = pointer.getLocation();
-        mouseX = point.getX();
-        mouseY = point.getY();
+    	mouse.update();
         updateForceDirection();
+        fireWhiteBallUpdate();
         for (Ball ball : balls) {
             ball.update();
             for (Ball otherBall : balls) {
@@ -80,16 +90,30 @@ public class Game implements BaseDrawer {
     }
 
     private void updateForceDirection() {
-        difX = mouseX - whiteBall.getX();
-        difY = mouseY - whiteBall.getY();
+        difX = - mouse.getMouseX() + whiteBall.getX() + whiteBall.getRadius();
+        difY = - mouse.getMouseY() + whiteBall.getY() + whiteBall.getRadius();
         distance = Math.sqrt(Math.pow(difX, 2) + Math.pow(difY, 2));
+    }
+    private void fireWhiteBallUpdate() {
+    	if (this.fireClick) {
+    		Double force = distance / 10;
+    		if (force < 1.0) {
+    			force = 1.0;
+    		}
+    		System.out.println("force " + force);
+    		
+    		whiteBall.setSpeedX((difX / 100) * force);
+    		whiteBall.setSpeedY((difY / 100) * force);
+    		this.fireClick = false;
+    	} 
     }
 
     @Override
     public void draw(Graphics graphics) {
         table.draw(graphics);
         graphics.setColor(Color.RED);
-        graphics.drawLine(whiteBall.getX().intValue(), whiteBall.getY().intValue(), mouseX.intValue() - (int)this.canvas.getLocationOnScreen().getX(), mouseY.intValue() - (int)this.canvas.getLocationOnScreen().getY());
+        graphics.drawLine(whiteBall.getX().intValue() + whiteBall.getRadius(), whiteBall.getY().intValue() + whiteBall.getRadius().intValue(), 
+        		mouse.getMouseX().intValue(), mouse.getMouseY().intValue());
         graphics.drawString("Mouse X = " + mouseX + " Mouse y = " + mouseY, 10, 10);
         for (Ball ball : balls) {
             ball.draw(graphics);
